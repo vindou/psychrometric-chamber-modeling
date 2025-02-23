@@ -1,4 +1,4 @@
-# Psychrometric Chamber Modelling
+# Psychrometric Chamber Modeling
 This repository contains all the code written by [Gilbert Chang](https://gilcha.com/) as a part of research work done in collaboration with [Jie Cai](https://engineering.purdue.edu/ME/People/ptProfile?resource_id=71762&group_id=11989) at Herrick Laboratories. 
 
 # Running Scripts
@@ -7,7 +7,7 @@ The MATLAB scripts found in /matlab/ were written in Matlab_R2024b, making exten
 ## Python
 Clone the repository or simply download the files from this GitHub page to obtain the scripts.
 ```
-git clone https://github.com/vindou/psychrometric-chamber-modelling
+git clone https://github.com/vindou/psychrometric-chamber-modeling
 ```
 Use your terminal of choice to enter the directory containing the repository. The Python scripts were tested with Python 3.12 in mind, so setting up a virtual environment with the same version is recommended but optional. Run the following to get all the dependencies.
 ```
