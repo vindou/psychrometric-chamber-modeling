@@ -1,7 +1,7 @@
 # Psychrometric Chamber Modelling
-This repository contains all the code written by Gilbert Chang as a part of research work done in collaboration with Jie Cai at Herrick Laboratories. 
+This repository contains all the code written by [Gilbert Chang](https://gilcha.com/) as a part of research work done in collaboration with [Jie Cai](https://engineering.purdue.edu/ME/People/ptProfile?resource_id=71762&group_id=11989) at Herrick Laboratories. 
 
-# Setup
+# Running Scripts
 ## MATLAB
 The MATLAB scripts found in /matlab/ were written in Matlab_R2024b, making extensive use of [CVX](https://github.com/cvxr/CVX) and [the MATLAB Control System Toolbox](https://github.com/cvxr/CVX). Installation of these prerequisites is recommended before attempting to run the scripts. 
 ## Python
