@@ -2,7 +2,7 @@ clc;
 clear;
 
 % Load Data
-data = readtable("Data_for_MATLAB.xlsx",Range="B1:Q20894");
+data = readtable("../Data_for_MATLAB.xlsx",Range="B1:Q20894");
 T_heat_coil = data.Heat_Coil_Temperature;
 T_room = data.Room_Temperature;
 
