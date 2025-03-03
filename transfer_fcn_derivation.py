@@ -6,7 +6,7 @@ import numpy as np, pandas as pd, cvxpy as cp, matplotlib.pyplot as plt, control
 # is assumed to be constant at the moment, but in the future it will be
 # a vector of temperatures that change over time.
 dt = 1                    # TIME STEP [s]
-C_air = 1.005             # AIR HEAT CAPACITY COEFFICIENT [J/(g * K)]
+C_air = 1.005             # AIR SPECIFIC HEAT CAPACITY [kJ/(kg * K)]
 T_amb = 77                # AMBIENT TEMPERATURE IN HIGH BAY [F]
 T_2c = 95                 # ADJACENT CHAMBER SETPOINT [F]
 
@@ -14,15 +14,19 @@ T_2c = 95                 # ADJACENT CHAMBER SETPOINT [F]
 data = pd.read_excel('Data_for_MATLAB.xlsx')
 
 # ISOLATE COLUMNS OF INTEREST
-T_hc = data['Heat_Coil_Temperature'].to_numpy() # HEAT COIL TEMPERATURE [F]
-T_r = data['Room_Temperature'].to_numpy()       # ROOM TEMPERATURE [F]
+T_hc = data['Heat_Coil_Temperature'].to_numpy()    # HEAT COIL TEMPERATURE [F]
+TC1 = data['Thermocouple_Top'].to_numpy()          # First thermocouple reading [F]
+TC2 = data['Thermocouple_Bottom'].to_numpy()       # Second thermocouple reading [F]
+T_r = (TC1 + TC2) / 2                              # AVERAGED ROOM TEMPERATURE [F]
 
 # UNKNOWN PARAMETERS
-Cap = 0;     # HEAT CAPACITY OF THE ROOM
-UA_amb = 0;  # HEAT TRANSFER COEFFICIENT BETWEEN THE ROOM AND THE AMBIENT ENVIRONMENT
-UA_2c = 0;   # HEAT TRANSFER COEFFICIENT BETWEEN THE ROOM AND THE ADJACENT CHAMBER
+Cap = 0;     # HEAT CAPACITY OF THE ROOM (NOT DIVIDED BY MASS FLOW OF AIR)
+UA_amb = 0;  # HEAT TRANSFER COEFFICIENT BETWEEN THE ROOM AND THE AMBIENT ENVIRONMENT (Divided by mass flow of air)
+UA_2c = 0;   # HEAT TRANSFER COEFFICIENT BETWEEN THE ROOM AND THE ADJACENT CHAMBER (Divided by mass flow of air)
 
 # GOVERNING EQUATION: Cap * dT_r/dt = C_air * (T_hc - T_r) + UA_amb * (T_amb - T_r) + UA_2c * (T_2c - T_r)
+# UA and C are divided by m_air to prevent unit mismatch.
+
 dT_r = np.diff(T_r) / dt
 
 A = np.column_stack([

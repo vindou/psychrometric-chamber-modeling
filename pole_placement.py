@@ -2,6 +2,12 @@ import control as ctrl
 import numpy as np
 import matplotlib.pyplot as plt
 
+# add a PI controller
+# take note of measurement block, thermocouples are not instantly responsive: sensor dynamics
+
+# system possibly unstable across -inf to inf, but stable for bounded inputs (bibo stable?), control saturation possible nonlinearity
+# block diagram
+
 # Plant parameters
 num = [1.005]
 den = [4.938, 0.98]
