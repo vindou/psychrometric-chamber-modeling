@@ -10,7 +10,7 @@ def convert_F_to_K(T_F):
 # is assumed to be constant at the moment, but in the future it will be
 # a vector of temperatures that change over time.
 dt = 1                    # TIME STEP [s]
-C_air = 1.0012            # AIR SPECIFIC HEAT CAPACITY [kJ/(kg * K)]
+C_air = 1.0012            # AIR SPECIFIC HEAT CAPACITY
 T_amb = 77                # AMBIENT TEMPERATURE IN HIGH BAY [F]
 T_2c = 95                 # ADJACENT CHAMBER SETPOINT [F]
 
@@ -21,8 +21,10 @@ T_2c = convert_F_to_K(T_2c)   # CONVERT TO KELVIN
 data = pd.read_excel('Data_for_MATLAB.xlsx')
 
 # ISOLATE COLUMNS OF INTEREST
-T_thermostat = data['Room_Temperature'].to_numpy() # THERMOSTAT SETTING [F]
-T_return = data['Return_Air_Temperature'].to_numpy() # RETURNING AIR TEMPERATURE [F]
+T_thermostat = data['Room_Temperature'].to_numpy() # THERMOSTAT SETTING [K]
+T_return = data['Return_Air_Temperature'].to_numpy() # RETURNING AIR TEMPERATURE [K]
+
+# gain
 
 Kp = 10
 Ki = 0.0015
@@ -34,9 +36,9 @@ T_ctrl = np.zeros_like(T_thermostat)
 integral = 0
 
 for t in range(0, len(T_thermostat)):
-    error = T_thermostat[t] - T_return[t]
-    integral += error * dt
-    T_ctrl[t] = Kp * error + Ki * integral
+    error = T_thermostat[t] - T_return[t] # K
+    integral += error * dt # K
+    T_ctrl[t] = Kp * error + Ki * integral # is 0 to 100%
 
 plt.figure(figsize=(10,6))
 plt.plot(T_thermostat, label="Thermostat Setting")
