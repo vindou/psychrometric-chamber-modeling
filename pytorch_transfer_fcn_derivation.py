@@ -5,9 +5,13 @@ import torch.nn as nn
 import torch.optim as optim
 import tqdm
 
+
+def convert_F_to_K(T_F):
+    return (T_F - 32) * 5/9 + 273.15
+
 # GIVEN CONSTANTS
 dt = 1                    # time step [s]
-C_air = 1.005             # air heat capacity coefficient
+C_air = 1.0012             # air heat capacity coefficient
 T_amb = 77.0              # ambient temperature [F]
 T_2c = 95.0               # adjacent chamber setpoint [F]
 
@@ -17,6 +21,11 @@ T_hc_np = data['Heat_Coil_Temperature'].to_numpy()  # heat coil temperature [F]
 TC1 = data['Thermocouple_Top'].to_numpy()          # First thermocouple reading [F]
 TC2 = data['Thermocouple_Bottom'].to_numpy()       # Second thermocouple reading [F]
 T_r_np = (TC1 + TC2) / 2                              # AVERAGED ROOM TEMPERATURE [F]
+
+T_r_np = convert_F_to_K(T_r_np)  # CONVERT TO KELVIN
+T_hc_np = convert_F_to_K(T_hc_np)  # CONVERT TO KELVIN
+T_amb = convert_F_to_K(T_amb)  # CONVERT TO KELVIN
+T_2c = convert_F_to_K(T_2c)  # CONVERT TO KELVIN
 
 # CONVERT DATA TO TORCH TENSORS
 T_hc = torch.tensor(T_hc_np, dtype=torch.float32)
@@ -41,7 +50,7 @@ class ParameterEstimator(nn.Module):
         # Cap*dT_r/dt = C_air*(T_hc - T_r) + UA_amb*(T_amb - T_r) + UA_2c*(T_2c - T_r)
         # Rearranged to residual = 0:
         residual = self.Cap * dT_r_dt - C_air*(T_hc - T_r) \
-                   - self.UA_amb*(T_amb - T_r) - self.UA_2c*(T_2c - T_r)
+                   - self.UA_amb*(T_r - T_amb) - self.UA_2c*(T_2c - T_r)
         return residual
 
 # INSTANTIATE THE MODEL
