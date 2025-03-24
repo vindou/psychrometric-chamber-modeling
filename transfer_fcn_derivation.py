@@ -24,31 +24,12 @@ data = pd.read_excel('Data_for_MATLAB.xlsx')
 T_thermostat = data['Room_Temperature'].to_numpy() # THERMOSTAT SETTING [K]
 T_return = data['Return_Air_Temperature'].to_numpy() # RETURNING AIR TEMPERATURE [K]
 
-# gain
-
-Kp = 10
-Ki = 0.0015
-
-# control signal = Kp (error) + Ki(integral of error)
-
-T_ctrl = np.zeros_like(T_thermostat)
-
-integral = 0
-
-for t in range(0, len(T_thermostat)):
-    error = T_thermostat[t] - T_return[t] # K
-    integral += error * dt # K
-    T_ctrl[t] = Kp * error + Ki * integral # is 0 to 100%
-
-plt.figure(figsize=(10,6))
-plt.plot(T_thermostat, label="Thermostat Setting")
-plt.plot(T_return, label="Returning Air Temperature")
-plt.plot(T_ctrl, label="Control Signal")
-plt.xlabel("Time [s]")
-plt.ylabel("Temperature [F]")
-plt.legend()
-plt.grid(True)
-plt.show()
+"""
+The heat pump's PI controller has the gains Kp = 10 and Ki = 0.0015;
+the control signal is 0 to 100% of the heat pump's maximum power. In
+the given data, the heat pump's control signal was overrided by the
+researchers overseeing the test, so closed loop poles cannot be derived.
+"""
 
 T_hc = data['Heat_Coil_Temperature'].to_numpy()    # HEAT COIL TEMPERATURE [F]
 
@@ -104,7 +85,6 @@ plt.legend()
 plt.grid(True)
 plt.show()
 
-"""
 # Define the transfer function
 num = [C_air]  # numerator
 den = [Cap, (C_air + X_amb + X_2c)]  # denominator
@@ -122,4 +102,21 @@ if np.all(np.real(poles) < 0):
     print("The system is stable.")
 else:
     print("The system is unstable.")
-"""
+
+# --- Z-Domain Stability Analysis ---
+sys_d = ctrl.c2d(sys, dt, method='zoh')
+print("\nDiscrete-time Transfer Function:", sys_d)
+
+z_poles = ctrl.poles(sys_d)
+print("\nZ-domain Poles:", z_poles)
+
+if np.all(np.abs(z_poles) < 1):
+    print("\nThe discrete-time system is stable (all poles inside unit circle).")
+else:
+    print("\nThe discrete-time system is unstable (poles outside unit circle).")
+
+plt.figure()
+ctrl.pole_zero_plot(sys_d, plot=True)
+plt.title("Z-Domain Pole-Zero Map")
+plt.grid(True)
+plt.show()
