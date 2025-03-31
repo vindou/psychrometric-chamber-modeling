@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import tqdm
+import matplotlib.pyplot as plt
+import control as ctrl
 
 
 def convert_F_to_K(T_F):
@@ -72,7 +74,79 @@ for epoch in tqdm.tqdm(range(num_epochs)):
     if epoch % 500 == 0:
         print(f"Epoch {epoch}: Loss = {loss.item():.6f}, Cap = {model.Cap.item():.4f}, UA_amb = {model.UA_amb.item():.4f}, UA_2c = {model.UA_2c.item():.4f}")
 
-print("Optimized Parameters:")
-print(f"Cap: {model.Cap.item()}")
-print(f"UA_amb: {model.UA_amb.item()}")
-print(f"UA_2c: {model.UA_2c.item()}")
+print("\nOptimized Parameters:")
+print(f"Cap: {model.Cap.item():.4f}")
+print(f"UA_amb: {model.UA_amb.item():.4f}")
+print(f"UA_2c: {model.UA_2c.item():.4f}")
+
+# Generate predictions using the optimized parameters
+T_r_pred = torch.zeros_like(T_r)
+T_r_pred[0] = T_r[0]  # Initial condition
+
+for t in tqdm.tqdm(range(len(T_r) - 1)):
+    dTdt = (
+        C_air * (T_hc[t] - T_r_pred[t])
+        + model.UA_amb * (T_r_pred[t] - T_amb)
+        + model.UA_2c * (T_2c - T_r_pred[t])
+    ) / model.Cap
+    T_r_pred[t+1] = T_r_pred[t] + dt * dTdt
+
+# Plot results
+time = torch.arange(len(T_r)) * dt
+plt.figure(figsize=(10,6))
+plt.plot(time.numpy(), T_r.numpy(), label="Measured Room Temperature")
+plt.plot(time.numpy(), T_r_pred.detach().numpy(), label="Predicted Room Temperature", linestyle='--')
+plt.xlabel("Time [s]")
+plt.ylabel("Room Temperature [K]")
+plt.title("Measured vs. Predicted Room Temperature")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Define the transfer function
+num = [C_air]  # numerator
+den = [model.Cap.item(), (C_air + model.UA_amb.item() + model.UA_2c.item())]  # denominator
+sys = ctrl.tf(num, den)
+print("\nTransfer Function:", sys)
+
+# Continuous-time stability analysis
+poles = ctrl.poles(sys)
+print("\nContinuous-time Poles:", poles)
+
+plt.figure()
+ctrl.pole_zero_plot(sys, plot=True)
+plt.title("Continuous-time Pole-Zero Map")
+plt.grid(True)
+plt.show()
+
+if np.all(np.real(poles) < 0):
+    print("\nThe continuous-time system is stable.")
+else:
+    print("\nThe continuous-time system is unstable.")
+
+# Z-domain stability analysis
+sys_d = ctrl.c2d(sys, dt, method='zoh')
+print("\nDiscrete-time Transfer Function:", sys_d)
+
+z_poles = ctrl.poles(sys_d)
+print("\nZ-domain Poles:", z_poles)
+
+if np.all(np.abs(z_poles) < 1):
+    print("\nThe discrete-time system is stable (all poles inside unit circle).")
+else:
+    print("\nThe discrete-time system is unstable (poles outside unit circle).")
+
+plt.figure()
+ctrl.pole_zero_plot(sys_d, plot=True)
+plt.title("Z-Domain Pole-Zero Map")
+plt.grid(True)
+plt.show()
+
+# Plot unit circle for reference
+theta = np.linspace(0, 2*np.pi, 100)
+x = np.cos(theta)
+y = np.sin(theta)
+plt.plot(x, y, 'k--', alpha=0.5, label='Unit Circle')
+plt.legend()
+plt.axis('equal')
+plt.show()

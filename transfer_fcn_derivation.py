@@ -21,8 +21,8 @@ T_2c = convert_F_to_K(T_2c)   # CONVERT TO KELVIN
 data = pd.read_excel('Data_for_MATLAB.xlsx')
 
 # ISOLATE COLUMNS OF INTEREST
-T_thermostat = data['Room_Temperature'].to_numpy() # THERMOSTAT SETTING [K]
-T_return = data['Return_Air_Temperature'].to_numpy() # RETURNING AIR TEMPERATURE [K]
+T_thermostat = data['Room_Temperature'].to_numpy() # THERMOSTAT SETTING [F]
+T_return = data['Return_Air_Temperature'].to_numpy() # RETURNING AIR TEMPERATURE [F]
 
 """
 The heat pump's PI controller has the gains Kp = 10 and Ki = 0.0015;
@@ -58,8 +58,8 @@ Cap, X_amb, X_2c = x
 
 print("Estimated parameters (Least Squares):")
 print(f"Cap    = {Cap}")
-print(f"UA_amb = {X_amb}")
-print(f"UA_2c  = {X_2c}")
+print(f"X_amb = {X_amb}")
+print(f"X_2c  = {X_2c}")
 
 T_r_pred = np.zeros_like(T_r)
 T_r_pred[0] = T_r[0] # ENFORCE INITIAL CONDITION
