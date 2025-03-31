@@ -13,11 +13,4 @@ Use your terminal of choice to enter the directory containing the repository. Th
 ```
 pip install -r requirements.txt
 ```
-After dependencies have been installed, run the following two commands to see the results. The following command accepts an Excel spreadsheet (.xlsx) and derives a transfer function for the psychrometric chamber based on a lumped element model. It will display two graphs: the room temperature and model predicted room temperature vs. time, as well as the pole-zero plot of the derived first order system.
-```
-python3.12 transfer_fcn_derivation.py
-```
-This command accepts parameters of the first-order transfer function derived in the previous script, and designs a 0th order controller to move the singular pole of the system to a desired point. It will display the system response to a step input.
-```
-python3.12 pole_placement.py
-```
+After dependencies have been installed, run the `python [script file name].py` to run any script in the repository. Detailed documentation regarding the function of each script will come soon.
