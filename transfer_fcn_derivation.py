@@ -85,9 +85,8 @@ plt.legend()
 plt.grid(True)
 plt.show()
 
-# Define the transfer function
-num = [C_air]  # numerator
-den = [Cap, (C_air + X_amb + X_2c)]  # denominator
+num = [C_air]
+den = [Cap, (C_air + X_amb + X_2c)]
 sys = ctrl.tf(num, den)
 print("Transfer Function:", sys)
 
@@ -103,7 +102,7 @@ if np.all(np.real(poles) < 0):
 else:
     print("The system is unstable.")
 
-# --- Z-Domain Stability Analysis ---
+
 sys_d = ctrl.c2d(sys, dt, method='zoh')
 print("\nDiscrete-time Transfer Function:", sys_d)
 
